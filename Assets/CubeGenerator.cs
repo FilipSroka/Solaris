@@ -48,4 +48,21 @@ public class CubeGenerator : MonoBehaviour
         }
     }
 
+    void ChangeCubeColors()
+    {
+        for (int x = padding; x < cubeCount + padding; x++)
+        {
+            for (int y = padding; y < cubeCount + padding; y++)
+            {
+                for (int z = padding; z < cubeCount + padding; z++)
+                {
+                    GameObject cube = cubes[x, y, z];
+                    if (cube != null)
+                    {
+                        cube.GetComponent<Renderer>().material.color = Random.Range(0, 2) == 0 ? Color.red : Color.blue;
+                    }
+                }
+            }
+        }
+    }
 }
