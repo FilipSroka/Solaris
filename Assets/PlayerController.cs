@@ -8,6 +8,7 @@ public class PlayerController : MonoBehaviour
     public float rotationSpeed = 2f; 
     public float maxRotationAngle = 360f; 
     public float slightForceAmount = 0.5f; // Adjust this for desired effect
+    public float speedChangeStep = 5f; // How much speed changes per key press
     private float targetPitch = 0;
     private float targetRotationY = 0;
 
@@ -19,8 +20,16 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
     }
 
-    void FixedUpdate() 
+    void Update() 
     {
+        if (Input.GetKey(KeyCode.UpArrow))
+        {
+            speed += speedChangeStep;
+        }
+        if (Input.GetKey(KeyCode.DownArrow))
+        {
+            speed -= speedChangeStep;
+        }
         if (Input.GetKey(KeyCode.A)) 
         {
             targetRotationY -= rotationSpeed;
