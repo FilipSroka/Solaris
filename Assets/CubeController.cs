@@ -17,6 +17,8 @@ public class CubeController : MonoBehaviour
 
     // Efficiency
     private Dictionary<Vector3Int, SubCube> subCubeDict;
+    private SubCube[,,] subCubes;
+
     private bool subCubesGenerated = false; 
     // Neighbor Counting Optimization
     private Vector3Int[] neighborOffsets = new Vector3Int[]
@@ -42,34 +44,35 @@ public class CubeController : MonoBehaviour
     void Start()
     {
         subCubeDict = new Dictionary<Vector3Int, SubCube>();
+        subCubes = new SubCube[cubesPerAxis, cubesPerAxis, cubesPerAxis];
 
         if (!subCubesGenerated)
         {
-            CreateSubCubes();
+            IterateOverSubCubes(CreateSubCubeRule);
             subCubesGenerated = true;
         }
          StartCoroutine(UpdateGrid());
     }
 
-    void CreateSubCubes()
+    void IterateOverSubCubes(ApplyRulesDelegate ApplyRules)
     {
+        // Note: You might implement selective updates instead of updating all sub-cubes
         for (int x = 0; x < cubesPerAxis; x++)
-        {
             for (int y = 0; y < cubesPerAxis; y++)
-            {
                 for (int z = 0; z < cubesPerAxis; z++)
-                {
-                    Vector3 position = transform.position + new Vector3(x * subCubeSize, y * subCubeSize, z * subCubeSize);
-                    GameObject subCubeObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    subCubeObj.transform.position = position; 
-                    subCubeObj.transform.localScale = new Vector3(subCubeSize, subCubeSize, subCubeSize); 
-                    subCubeObj.transform.parent = transform; // Make the sub-cube a child
-                    SubCube subCube = subCubeObj.AddComponent<SubCube>();
-                    subCube.isAlive = true; 
-                    subCubeDict.Add(new Vector3Int(x, y, z), subCube); 
-                }
-            }
-        }
+                    ApplyRules(x, y, z);
+    }
+
+    void CreateSubCubeRule(int x,int y,int z)
+    {
+        Vector3 position = transform.position + new Vector3(x * subCubeSize, y * subCubeSize, z * subCubeSize);
+        GameObject subCubeObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        subCubeObj.transform.position = position;
+        subCubeObj.transform.localScale = new Vector3(subCubeSize, subCubeSize, subCubeSize);
+        subCubeObj.transform.parent = transform; // Make the sub-cube a child
+        SubCube subCube = subCubeObj.AddComponent<SubCube>();
+        subCube.isAlive = true;
+        subCubes[x, y, z] = subCube;
     }
 
     IEnumerator UpdateGrid()
@@ -82,21 +85,11 @@ public class CubeController : MonoBehaviour
         }
     }
 
-    void IterateOverSubCubes(ApplyRulesDelegate ApplyRules)
-    {
-        // Note: You might implement selective updates instead of updating all sub-cubes
 
-        foreach (var kvp in subCubeDict)
-        {
-            Vector3Int subCubePos = kvp.Key;
-            SubCube subCube = kvp.Value;
-            ApplyRules(subCube, subCubePos);
-        }
-    }
-
-    void ThreeDCellularAutomataRules(SubCube subCube, Vector3Int subCubePos)
+    void ThreeDCellularAutomataRules(int x, int y, int z)
     {
-        int liveNeighbors = GetLiveNeighborCount(subCube, subCubePos);
+        SubCube subCube = subCubes[x, y, z];
+        int liveNeighbors = GetLiveNeighborCount(x, y ,z);
 
         if (subCube.isAlive)
         {
@@ -109,9 +102,11 @@ public class CubeController : MonoBehaviour
     }
 
 
-    int GetLiveNeighborCount(SubCube subCube, Vector3Int subCubePos)
+    int GetLiveNeighborCount(int x, int y, int z)
     {
         int liveNeighbors = 0;
+        Vector3Int subCubePos = new Vector3Int(x, y, z);
+
         foreach (Vector3Int offset in neighborOffsets)
         {
             Vector3Int neighborPos = subCubePos + offset;
@@ -122,7 +117,7 @@ public class CubeController : MonoBehaviour
                 neighborPos.z >= 0 && neighborPos.z < cubesPerAxis)
             {
                 // If valid neighbor, check if it's in the dictionary and alive
-                if (subCubeDict.ContainsKey(neighborPos) && subCubeDict[neighborPos].isAlive)
+                if (subCubes[neighborPos.x, neighborPos.y, neighborPos.z].isAlive)
                 {
                     liveNeighbors++;
                 }
@@ -132,5 +127,5 @@ public class CubeController : MonoBehaviour
 
         return liveNeighbors;
     }
-    public delegate void ApplyRulesDelegate(SubCube subCube, Vector3Int subCubePos);
+    public delegate void ApplyRulesDelegate(int x, int y, int z);
 }
