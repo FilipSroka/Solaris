@@ -9,6 +9,7 @@ public class CubeController : MonoBehaviour
     public int[] survivalRange = { 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26 };
     public int[] birthRange = { 13, 14, 17, 18, 19 };
     public int updateInterval = 1; // Seconds between updates
+    private int iteration = 0;
 
     // Cube grid properties
     public int cubesPerAxis = 50;
@@ -47,7 +48,6 @@ public class CubeController : MonoBehaviour
             CreateSubCubes();
             subCubesGenerated = true;
         }
-
          StartCoroutine(UpdateGrid());
     }
 
@@ -76,12 +76,13 @@ public class CubeController : MonoBehaviour
     {
         while (true)
         {
-            UpdateSubCubeStates();
+            IterateOverSubCubes(ThreeDCellularAutomataRules);
+            Debug.Log(iteration++);
             yield return new WaitForSeconds(updateInterval);
         }
     }
 
-    void UpdateSubCubeStates()
+    void IterateOverSubCubes(ApplyRulesDelegate ApplyRules)
     {
         // Note: You might implement selective updates instead of updating all sub-cubes
 
@@ -93,7 +94,7 @@ public class CubeController : MonoBehaviour
         }
     }
 
-    void ApplyRules(SubCube subCube, Vector3Int subCubePos)
+    void ThreeDCellularAutomataRules(SubCube subCube, Vector3Int subCubePos)
     {
         int liveNeighbors = GetLiveNeighborCount(subCube, subCubePos);
 
@@ -103,7 +104,6 @@ public class CubeController : MonoBehaviour
         }
         else
         {
-            // when in proximity of ball it increases
             subCube.nextIsAlive = birthRange.Any(x => x == liveNeighbors);
         }
     }
@@ -132,4 +132,5 @@ public class CubeController : MonoBehaviour
 
         return liveNeighbors;
     }
+    public delegate void ApplyRulesDelegate(SubCube subCube, Vector3Int subCubePos);
 }
