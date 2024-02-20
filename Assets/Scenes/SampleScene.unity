@@ -154,8 +154,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   survivalRange: 0d0000000e0000000f000000100000001100000012000000130000001400000015000000160000001700000018000000190000001a000000
   birthRange: 0d0000000e000000110000001200000013000000
-  updateInterval: 1
-  cubesPerAxis: 10
+  updateInterval: 2
+  cubesPerAxis: 50
   subCubeSize: 1
 --- !u!4 &422383532
 Transform:
@@ -387,10 +387,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e5dca90157264e52b823afcf43c7442, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cubeSize: 50
-  cubeCount: 5
-  padding: 2
-  iteration: 0
 --- !u!4 &1830730875
 Transform:
   m_ObjectHideFlags: 0

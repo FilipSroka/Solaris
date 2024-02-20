@@ -6,19 +6,17 @@ using UnityEngine;
 public class CubeController : MonoBehaviour
 {
     // Rule parameters
-    // public int[] survivalRange = { 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26 };
-    public int[] survivalRange = { 8, 9, 10 ,11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26 };
+    public int[] survivalRange = { 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26 };
     public int[] birthRange = { 13, 14, 17, 18, 19 };
     public int updateInterval = 1; // Seconds between updates
 
     // Cube grid properties
-    public int cubesPerAxis = 10;
+    public int cubesPerAxis = 50;
     public int subCubeSize = 1;
 
     // Efficiency
     private Dictionary<Vector3Int, SubCube> subCubeDict;
     private bool subCubesGenerated = false; 
-
     // Neighbor Counting Optimization
     private Vector3Int[] neighborOffsets = new Vector3Int[]
     {
@@ -98,7 +96,6 @@ public class CubeController : MonoBehaviour
     void ApplyRules(SubCube subCube, Vector3Int subCubePos)
     {
         int liveNeighbors = GetLiveNeighborCount(subCube, subCubePos);
-        // Debug.Log("SubCube Position: " + subCube.transform.position + ", Live Neighbors: " + liveNeighbors); // Add this line
 
         if (subCube.isAlive)
         {
@@ -106,6 +103,7 @@ public class CubeController : MonoBehaviour
         }
         else
         {
+            // when in proximity of ball it increases
             subCube.nextIsAlive = birthRange.Any(x => x == liveNeighbors);
         }
     }
