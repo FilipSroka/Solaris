@@ -15,7 +15,7 @@ public class CubeController : MonoBehaviour
 
 
     // Cube grid properties
-    private int cubesPerAxis = 15;
+    private int cubesPerAxis = 70;
     private int subCubeSize = 1;
     private int limit = 15;
     private int goldenCubes = 3;
