@@ -31,7 +31,10 @@ public class CubeController : MonoBehaviour
     {
         subCubeDict = new Dictionary<Vector3Int, SubCube>();
         subCubes = new SubCube[cubesPerAxis, cubesPerAxis, cubesPerAxis];
-        initialState = GenerateInitialState();
+        
+        // Initialize initialState with the same dimensions as subCubes
+        initialState = new bool[cubesPerAxis, cubesPerAxis, cubesPerAxis];
+        IterateOverSubCubes(GenerateInitialState);
 
         if (!subCubesGenerated)
         {
@@ -118,23 +121,9 @@ public class CubeController : MonoBehaviour
 
     // Setting up
 
-    private bool[,,] GenerateInitialState()
+    void GenerateInitialState(int x, int y, int z)
     {
-        bool[,,] initialState = new bool[cubesPerAxis, cubesPerAxis, cubesPerAxis];
-
-        for (int x = 0; x < cubesPerAxis; x++)
-        {
-            for (int y = 0; y < cubesPerAxis; y++)
-            {
-                for (int z = 0; z < cubesPerAxis; z++)
-                {
-                    // all true for now
-                    initialState[x, y, z] = true;
-                }
-            }
-        }
-
-        return initialState;
+        initialState[x, y, z] = true;
     }
 
     private static Vector3Int[] GenerateNeighborOffsets()
