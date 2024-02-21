@@ -72,6 +72,18 @@ public class CubeController : MonoBehaviour
         subCubeObj.transform.parent = transform; // Make the sub-cube a child
         SubCube subCube = subCubeObj.AddComponent<SubCube>();
         subCube.isAlive = true;
+        foreach (Vector3Int offset in neighborOffsets)
+        {
+            Vector3Int neighborPos = new Vector3Int(x, y, z) + offset;
+
+            // Bounds check: Skip neighbors that would be outside the bounds
+            if (neighborPos.x >= 0 && neighborPos.x < cubesPerAxis &&
+                neighborPos.y >= 0 && neighborPos.y < cubesPerAxis &&
+                neighborPos.z >= 0 && neighborPos.z < cubesPerAxis) 
+            {
+                subCube.neighborCoordinates.Add(neighborPos);
+            }
+        }
         subCubes[x, y, z] = subCube;
     }
 
@@ -89,7 +101,7 @@ public class CubeController : MonoBehaviour
     void ThreeDCellularAutomataRules(int x, int y, int z)
     {
         SubCube subCube = subCubes[x, y, z];
-        int liveNeighbors = GetLiveNeighborCount(x, y ,z);
+        int liveNeighbors = GetLiveNeighborCount(subCube);
 
         if (subCube.isAlive)
         {
@@ -102,27 +114,16 @@ public class CubeController : MonoBehaviour
     }
 
 
-    int GetLiveNeighborCount(int x, int y, int z)
+    int GetLiveNeighborCount(SubCube subCube) 
     {
         int liveNeighbors = 0;
-        Vector3Int subCubePos = new Vector3Int(x, y, z);
 
-        foreach (Vector3Int offset in neighborOffsets)
+        foreach (Vector3Int neighborCoord in subCube.neighborCoordinates)
         {
-            Vector3Int neighborPos = subCubePos + offset;
-
-            // Bounds checking: Ensure neighbor position is within the cube dimensions
-            if (neighborPos.x >= 0 && neighborPos.x < cubesPerAxis &&
-                neighborPos.y >= 0 && neighborPos.y < cubesPerAxis &&
-                neighborPos.z >= 0 && neighborPos.z < cubesPerAxis)
+            if (subCubes[neighborCoord.x, neighborCoord.y, neighborCoord.z].isAlive)
             {
-                // If valid neighbor, check if it's in the dictionary and alive
-                if (subCubes[neighborPos.x, neighborPos.y, neighborPos.z].isAlive)
-                {
-                    liveNeighbors++;
-                }
-            } 
-            // else: neighbor is outside of the cube boundaries - we do nothing
+                liveNeighbors++;
+            }
         }
 
         return liveNeighbors;
