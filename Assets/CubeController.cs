@@ -8,7 +8,7 @@ public class CubeController : MonoBehaviour
     // Rule parameters
     public int[] survivalRange = { 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26 };
     public int[] birthRange = { 13, 14, 17, 18, 19 };
-    public int updateInterval = 1; // Seconds between updates
+    public int updateInterval = 0; // Seconds between updates
     private int iteration = 0;
 
     // Cube grid properties
@@ -20,31 +20,18 @@ public class CubeController : MonoBehaviour
     private SubCube[,,] subCubes;
 
     private bool subCubesGenerated = false; 
+
     // Neighbor Counting Optimization
-    private Vector3Int[] neighborOffsets = new Vector3Int[]
-    {
-        // Each Vector3Int represents a relative offset from the center cell 
+    private Vector3Int[] neighborOffsets = GenerateNeighborOffsets();
 
-        // Layer -1 (the layer "below" the central cube)
-        new Vector3Int(-1, -1, -1), new Vector3Int(0, -1, -1), new Vector3Int(1, -1, -1),
-        new Vector3Int(-1, 0, -1),  new Vector3Int(0, 0, -1),  new Vector3Int(1, 0, -1),
-        new Vector3Int(-1, 1, -1),  new Vector3Int(0, 1, -1),  new Vector3Int(1, 1, -1),
-
-        // Layer 0 (the same layer as the central cube)
-        new Vector3Int(-1, -1, 0),  new Vector3Int(0, -1, 0),  new Vector3Int(1, -1, 0),
-        new Vector3Int(-1, 0, 0), /* Skip (0, 0, 0) - that's the center cell itself */ new Vector3Int(1, 0, 0),
-        new Vector3Int(-1, 1, 0),   new Vector3Int(0, 1, 0),   new Vector3Int(1, 1, 0),
-
-        // Layer +1 (the layer "above" the central cube)
-        new Vector3Int(-1, -1, 1),  new Vector3Int(0, -1, 1),  new Vector3Int(1, -1, 1),
-        new Vector3Int(-1, 0, 1),   new Vector3Int(0, 0, 1),   new Vector3Int(1, 0, 1),
-        new Vector3Int(-1, 1, 1),   new Vector3Int(0, 1, 1),   new Vector3Int(1, 1, 1)
-    };
+    // Initial state
+    private bool[,,] initialState;
 
     void Start()
     {
         subCubeDict = new Dictionary<Vector3Int, SubCube>();
         subCubes = new SubCube[cubesPerAxis, cubesPerAxis, cubesPerAxis];
+        initialState = GenerateInitialState();
 
         if (!subCubesGenerated)
         {
@@ -71,7 +58,7 @@ public class CubeController : MonoBehaviour
         subCubeObj.transform.localScale = new Vector3(subCubeSize, subCubeSize, subCubeSize);
         subCubeObj.transform.parent = transform; // Make the sub-cube a child
         SubCube subCube = subCubeObj.AddComponent<SubCube>();
-        subCube.isAlive = true;
+        subCube.isAlive = initialState[x, y, z]; 
         foreach (Vector3Int offset in neighborOffsets)
         {
             Vector3Int neighborPos = new Vector3Int(x, y, z) + offset;
@@ -128,5 +115,47 @@ public class CubeController : MonoBehaviour
 
         return liveNeighbors;
     }
+
+    // Setting up
+
+    private bool[,,] GenerateInitialState()
+    {
+        bool[,,] initialState = new bool[cubesPerAxis, cubesPerAxis, cubesPerAxis];
+
+        for (int x = 0; x < cubesPerAxis; x++)
+        {
+            for (int y = 0; y < cubesPerAxis; y++)
+            {
+                for (int z = 0; z < cubesPerAxis; z++)
+                {
+                    // all true for now
+                    initialState[x, y, z] = true;
+                }
+            }
+        }
+
+        return initialState;
+    }
+
+    private static Vector3Int[] GenerateNeighborOffsets()
+    {
+        List<Vector3Int> offsets = new List<Vector3Int>();
+
+        for (int z = -1; z <= 1; z++)
+        {
+            for (int y = -1; y <= 1; y++)
+            {
+                for (int x = -1; x <= 1; x++)
+                {
+                    if (x == 0 && y == 0 && z == 0) continue;  // Skip the center cell
+                    offsets.Add(new Vector3Int(x, y, z));
+                }
+            }
+        }
+
+        return offsets.ToArray();
+    }
+
+
     public delegate void ApplyRulesDelegate(int x, int y, int z);
 }
