@@ -7,6 +7,7 @@ public class SubCube : MonoBehaviour
     public bool isAlive = true;
     public bool nextIsAlive = true;
     private MeshRenderer meshRenderer;
+    public Vector3 position;
     public Collider myCollider; // Renamed for clarity
     public List<Vector3Int> neighborCoordinates = new List<Vector3Int>(); // Store neighbor coordinates
 
