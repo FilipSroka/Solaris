@@ -30,12 +30,15 @@ public class CubeController : MonoBehaviour
 
     // Initial state
     private bool[,,] initialState;
+    private List<Ball> deadZoneBalls;
 
     void Start()
     {
         initialState = new bool[cubesPerAxis, cubesPerAxis, cubesPerAxis];
         subCubeDict = new Dictionary<Vector3Int, SubCube>();
         subCubes = new SubCube[cubesPerAxis, cubesPerAxis, cubesPerAxis];
+        // Assume you have a list of Ball objects representing your dead regions
+        deadZoneBalls = GenerateRandomBalls();
 
         IterateOverSubCubes(GenerateInitialState);
         IterateOverSubCubes(CreateSubCubeRule);
@@ -79,7 +82,8 @@ public class CubeController : MonoBehaviour
 
     IEnumerator UpdateGrid()
     {
-        while (iteration <= limit)
+        //while (iteration <= limit)
+        while (true)
         {
             IterateOverSubCubes(ThreeDCellularAutomataRules);
             Debug.Log(iteration++);
@@ -179,16 +183,62 @@ public class CubeController : MonoBehaviour
             cubeRenderer.material.color = new Color(1.0f, 0.84f, 0.0f);
 
             goldenCube.transform.localScale = new Vector3(subCubeSize, subCubeSize, subCubeSize);
+
         }
     }
-
 
     // Setting up
 
     void GenerateInitialState(int x, int y, int z)
     {
-        initialState[x, y, z] = true;
+        // Assume you have a list of Ball objects representing your dead regions
+        // List<Ball> deadZoneBalls = GenerateRandomBalls();
+
+        initialState[x, y, z] = !IsInsideAnyBall(x, y, z, deadZoneBalls);
     }
+
+    // Helper class to represent a ball
+    class Ball
+    {
+        public Vector3 center;
+        public float radius;
+    }
+
+    // Function to generate a list of random balls
+    List<Ball> GenerateRandomBalls()
+    {
+        List<Ball> balls = new List<Ball>();
+        int numBalls = Random.Range(500, 525); // Adjust the range for desired ball count
+
+        for (int i = 0; i < numBalls; i++)
+        {
+            Ball ball = new Ball();
+            ball.center = new Vector3(
+                Random.Range(0, cubesPerAxis),
+                Random.Range(0, cubesPerAxis),
+                Random.Range(0, cubesPerAxis) 
+            );
+            ball.radius = Random.Range(3f, 6f); // Adjust the range for desired ball sizes
+            balls.Add(ball);
+        }
+
+        return balls;
+    }
+
+    // Function to check if a point is inside any ball
+    bool IsInsideAnyBall(int x, int y, int z, List<Ball> balls)
+    {
+        Vector3 point = new Vector3(x, y, z);
+        foreach (Ball ball in balls)
+        {
+            if (Vector3.Distance(point, ball.center) <= ball.radius)
+            {
+                return true; // Point is inside a ball
+            }
+        }
+        return false; 
+    }
+
 
     private static Vector3Int[] GenerateNeighborOffsets()
     {
