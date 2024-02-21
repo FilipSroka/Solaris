@@ -9,17 +9,18 @@ public class CubeController : MonoBehaviour
     public int[] survivalRange = { 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26 };
     public int[] birthRange = { 13, 14, 17, 18, 19 };
     public int updateInterval = 0; // Seconds between updates
-    private int iteration = 0;
+
+    private int iteration = 1;
+
 
     // Cube grid properties
-    public int cubesPerAxis = 50;
+    private int cubesPerAxis = 70;
     public int subCubeSize = 1;
+    private int limit = 15;
 
     // Efficiency
     private Dictionary<Vector3Int, SubCube> subCubeDict;
     private SubCube[,,] subCubes;
-
-    private bool subCubesGenerated = false; 
 
     // Neighbor Counting Optimization
     private Vector3Int[] neighborOffsets = GenerateNeighborOffsets();
@@ -29,19 +30,14 @@ public class CubeController : MonoBehaviour
 
     void Start()
     {
+        initialState = new bool[cubesPerAxis, cubesPerAxis, cubesPerAxis];
         subCubeDict = new Dictionary<Vector3Int, SubCube>();
         subCubes = new SubCube[cubesPerAxis, cubesPerAxis, cubesPerAxis];
-        
-        // Initialize initialState with the same dimensions as subCubes
-        initialState = new bool[cubesPerAxis, cubesPerAxis, cubesPerAxis];
-        IterateOverSubCubes(GenerateInitialState);
 
-        if (!subCubesGenerated)
-        {
-            IterateOverSubCubes(CreateSubCubeRule);
-            subCubesGenerated = true;
-        }
-         StartCoroutine(UpdateGrid());
+        IterateOverSubCubes(GenerateInitialState);
+        IterateOverSubCubes(CreateSubCubeRule);
+        StartCoroutine(UpdateGrid());
+
     }
 
     void IterateOverSubCubes(ApplyRulesDelegate ApplyRules)
@@ -79,12 +75,19 @@ public class CubeController : MonoBehaviour
 
     IEnumerator UpdateGrid()
     {
-        while (true)
+        while (iteration <= limit)
         {
             IterateOverSubCubes(ThreeDCellularAutomataRules);
             Debug.Log(iteration++);
             yield return new WaitForSeconds(updateInterval);
         }
+        IterateOverSubCubes(EnableRendering);
+    }
+
+    void EnableRendering(int x, int y, int z)
+    {
+        if (subCubes[x, y, z].isAlive && GetLiveNeighborCountNoDiagonal(x,y,z)!=6)
+            subCubes[x, y, z].setMeshRenderer(true);
     }
 
 
@@ -118,6 +121,36 @@ public class CubeController : MonoBehaviour
 
         return liveNeighbors;
     }
+
+
+int GetLiveNeighborCountNoDiagonal(int x, int y, int z) 
+{
+    int count = 0;
+
+    // Check neighbors in the up, down, left, right, front, and back directions
+    int[] dx = { -1, 1, 0, 0, 0, 0 };
+    int[] dy = { 0, 0, -1, 1, 0, 0 };
+    int[] dz = { 0, 0, 0, 0, -1, 1 };
+
+    for (int direction = 0; direction < 6; direction++) 
+    {
+        int newX = x + dx[direction];
+        int newY = y + dy[direction];
+        int newZ = z + dz[direction];
+
+        // Ensure that the neighboring cell is within the valid bounds
+        if (newX >= 0 && newX < cubesPerAxis && newY >= 0 && newY < cubesPerAxis && newZ >= 0 && newZ < cubesPerAxis) 
+        {
+            // Increment the count if the neighboring cell is alive
+            // Adjust the condition based on your specific requirements
+            if (subCubes[newX, newY, newZ].isAlive)
+                count++;
+        }
+    }
+
+    Debug.Log(count);
+    return count;
+}
 
     // Setting up
 
