@@ -9,7 +9,9 @@ public class CubeController : MonoBehaviour
     public int[] survivalRange = { 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26 };
     public int[] birthRange = { 13, 14, 17, 18, 19 };
     public int updateInterval = 0; // Seconds between updates
+
     private int iteration = 1;
+
 
     // Cube grid properties
     private int cubesPerAxis = 70;
@@ -31,9 +33,11 @@ public class CubeController : MonoBehaviour
         initialState = new bool[cubesPerAxis, cubesPerAxis, cubesPerAxis];
         subCubeDict = new Dictionary<Vector3Int, SubCube>();
         subCubes = new SubCube[cubesPerAxis, cubesPerAxis, cubesPerAxis];
+
         IterateOverSubCubes(GenerateInitialState);
         IterateOverSubCubes(CreateSubCubeRule);
         StartCoroutine(UpdateGrid());
+
     }
 
     void IterateOverSubCubes(ApplyRulesDelegate ApplyRules)
@@ -118,6 +122,7 @@ public class CubeController : MonoBehaviour
         return liveNeighbors;
     }
 
+
 int GetLiveNeighborCountNoDiagonal(int x, int y, int z) 
 {
     int count = 0;
@@ -146,6 +151,7 @@ int GetLiveNeighborCountNoDiagonal(int x, int y, int z)
     Debug.Log(count);
     return count;
 }
+
     // Setting up
 
     void GenerateInitialState(int x, int y, int z)
