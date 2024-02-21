@@ -27,12 +27,15 @@ public class CubeController : MonoBehaviour
 
     // Initial state
     private bool[,,] initialState;
+    private List<Ball> deadZoneBalls;
 
     void Start()
     {
         initialState = new bool[cubesPerAxis, cubesPerAxis, cubesPerAxis];
         subCubeDict = new Dictionary<Vector3Int, SubCube>();
         subCubes = new SubCube[cubesPerAxis, cubesPerAxis, cubesPerAxis];
+        // Assume you have a list of Ball objects representing your dead regions
+        deadZoneBalls = GenerateRandomBalls();
 
         IterateOverSubCubes(GenerateInitialState);
         IterateOverSubCubes(CreateSubCubeRule);
@@ -75,7 +78,8 @@ public class CubeController : MonoBehaviour
 
     IEnumerator UpdateGrid()
     {
-        while (iteration <= limit)
+        //while (iteration <= limit)
+        while (true)
         {
             IterateOverSubCubes(ThreeDCellularAutomataRules);
             Debug.Log(iteration++);
@@ -123,41 +127,87 @@ public class CubeController : MonoBehaviour
     }
 
 
-int GetLiveNeighborCountNoDiagonal(int x, int y, int z) 
-{
-    int count = 0;
-
-    // Check neighbors in the up, down, left, right, front, and back directions
-    int[] dx = { -1, 1, 0, 0, 0, 0 };
-    int[] dy = { 0, 0, -1, 1, 0, 0 };
-    int[] dz = { 0, 0, 0, 0, -1, 1 };
-
-    for (int direction = 0; direction < 6; direction++) 
+    int GetLiveNeighborCountNoDiagonal(int x, int y, int z) 
     {
-        int newX = x + dx[direction];
-        int newY = y + dy[direction];
-        int newZ = z + dz[direction];
+        int count = 0;
 
-        // Ensure that the neighboring cell is within the valid bounds
-        if (newX >= 0 && newX < cubesPerAxis && newY >= 0 && newY < cubesPerAxis && newZ >= 0 && newZ < cubesPerAxis) 
+        // Check neighbors in the up, down, left, right, front, and back directions
+        int[] dx = { -1, 1, 0, 0, 0, 0 };
+        int[] dy = { 0, 0, -1, 1, 0, 0 };
+        int[] dz = { 0, 0, 0, 0, -1, 1 };
+
+        for (int direction = 0; direction < 6; direction++) 
         {
-            // Increment the count if the neighboring cell is alive
-            // Adjust the condition based on your specific requirements
-            if (subCubes[newX, newY, newZ].isAlive)
-                count++;
-        }
-    }
+            int newX = x + dx[direction];
+            int newY = y + dy[direction];
+            int newZ = z + dz[direction];
 
-    Debug.Log(count);
-    return count;
-}
+            // Ensure that the neighboring cell is within the valid bounds
+            if (newX >= 0 && newX < cubesPerAxis && newY >= 0 && newY < cubesPerAxis && newZ >= 0 && newZ < cubesPerAxis) 
+            {
+                // Increment the count if the neighboring cell is alive
+                // Adjust the condition based on your specific requirements
+                if (subCubes[newX, newY, newZ].isAlive)
+                    count++;
+            }
+        }
+
+        Debug.Log(count);
+        return count;
+    }
 
     // Setting up
 
     void GenerateInitialState(int x, int y, int z)
     {
-        initialState[x, y, z] = true;
+        // Assume you have a list of Ball objects representing your dead regions
+        // List<Ball> deadZoneBalls = GenerateRandomBalls();
+
+        initialState[x, y, z] = !IsInsideAnyBall(x, y, z, deadZoneBalls);
     }
+
+    // Helper class to represent a ball
+    class Ball
+    {
+        public Vector3 center;
+        public float radius;
+    }
+
+    // Function to generate a list of random balls
+    List<Ball> GenerateRandomBalls()
+    {
+        List<Ball> balls = new List<Ball>();
+        int numBalls = Random.Range(500, 525); // Adjust the range for desired ball count
+
+        for (int i = 0; i < numBalls; i++)
+        {
+            Ball ball = new Ball();
+            ball.center = new Vector3(
+                Random.Range(0, cubesPerAxis),
+                Random.Range(0, cubesPerAxis),
+                Random.Range(0, cubesPerAxis) 
+            );
+            ball.radius = Random.Range(3f, 6f); // Adjust the range for desired ball sizes
+            balls.Add(ball);
+        }
+
+        return balls;
+    }
+
+    // Function to check if a point is inside any ball
+    bool IsInsideAnyBall(int x, int y, int z, List<Ball> balls)
+    {
+        Vector3 point = new Vector3(x, y, z);
+        foreach (Ball ball in balls)
+        {
+            if (Vector3.Distance(point, ball.center) <= ball.radius)
+            {
+                return true; // Point is inside a ball
+            }
+        }
+        return false; 
+    }
+
 
     private static Vector3Int[] GenerateNeighborOffsets()
     {
