@@ -34,4 +34,11 @@ public class SubCube : MonoBehaviour
     {
         meshRenderer.enabled = b;
     }
+    public void SetColor(Color color)
+    {
+        if (meshRenderer == null)
+            meshRenderer = GetComponent<MeshRenderer>();
+
+        meshRenderer.material.color = color;
+    }
 }

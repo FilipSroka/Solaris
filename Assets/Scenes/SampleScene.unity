@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657832, g: 0.49641222, b: 0.57481664, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -155,6 +155,7 @@ MonoBehaviour:
   goldenCubePrefab: {fileID: 1760008369}
   survivalRange: 0d0000000e0000000f000000100000001100000012000000130000001400000015000000160000001700000018000000190000001a000000
   birthRange: 0d0000000e000000110000001200000013000000
+  text: {fileID: 1120004732}
 --- !u!4 &422383532
 Transform:
   m_ObjectHideFlags: 0
