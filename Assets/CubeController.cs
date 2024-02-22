@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq; 
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CubeController : MonoBehaviour
 {
@@ -15,10 +16,12 @@ public class CubeController : MonoBehaviour
 
 
     // Cube grid properties
-    private int cubesPerAxis = 70;
+    private int cubesPerAxis = 50;
     private int subCubeSize = 1;
     private int limit = 15;
     private int goldenCubes = 3;
+    private int score;
+    public Text text;
 
     // Efficiency
     private Dictionary<Vector3Int, SubCube> subCubeDict;
@@ -38,6 +41,7 @@ public class CubeController : MonoBehaviour
         subCubeDict = new Dictionary<Vector3Int, SubCube>();
         subCubes = new SubCube[cubesPerAxis, cubesPerAxis, cubesPerAxis];
         // Assume you have a list of Ball objects representing your dead regions
+        text.text = "0/" + goldenCubes;
         deadZoneBalls = GenerateRandomBalls();
 
         IterateOverSubCubes(GenerateInitialState);
@@ -82,8 +86,8 @@ public class CubeController : MonoBehaviour
 
     IEnumerator UpdateGrid()
     {
-        //while (iteration <= limit)
-        while (true)
+        while (iteration <= limit)
+        // while (true)
         {
             IterateOverSubCubes(ThreeDCellularAutomataRules);
             Debug.Log(iteration++);
@@ -257,6 +261,13 @@ public class CubeController : MonoBehaviour
         }
 
         return offsets.ToArray();
+    }
+    
+    public void IncreaseScore()
+    {
+        score++;
+        text.text = score + "/" + goldenCubes;
+        Debug.Log("Score: " + score);
     }
 
 

@@ -16,7 +16,7 @@ public class SubCube : MonoBehaviour
         meshRenderer = GetComponent<MeshRenderer>();
         myCollider = GetComponent<Collider>();
         UpdateAppearance(); // Apply initial state
-        meshRenderer.enabled = true;
+        meshRenderer.enabled = false;
     }
 
     private void Update() {
@@ -26,8 +26,8 @@ public class SubCube : MonoBehaviour
 
     void UpdateAppearance()
     {
-        meshRenderer.enabled = isAlive; // Show/hide the cube
-        myCollider.enabled = isAlive;     // Enable/disable collisions
+        // meshRenderer.enabled = isAlive; // Show/hide the cube
+        //myCollider.enabled = isAlive;     // Enable/disable collisions
     }
 
     public void setMeshRenderer(bool b)
