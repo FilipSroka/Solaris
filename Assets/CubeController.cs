@@ -16,7 +16,7 @@ public class CubeController : MonoBehaviour
 
 
     // Cube grid properties
-    private int cubesPerAxis = 50;
+    private int cubesPerAxis = 60;
     private int subCubeSize = 1;
     private int limit = 15;
     private int goldenCubes = 3;
@@ -82,6 +82,10 @@ public class CubeController : MonoBehaviour
             }
         }
         subCubes[x, y, z] = subCube;
+
+        // Set color based on position
+        Color cubeColor = CalculateColorBasedOnPosition(x, y, z, cubesPerAxis);
+        subCube.SetColor(cubeColor); // You'll need to implement this method in SubCube
     }
 
     IEnumerator UpdateGrid()
@@ -268,6 +272,15 @@ public class CubeController : MonoBehaviour
         score++;
         text.text = score + "/" + goldenCubes;
         Debug.Log("Score: " + score);
+    }
+
+    Color CalculateColorBasedOnPosition(int x, int y, int z, int maxAxis)
+    {
+        float r = (float)x / (maxAxis - 1);
+        float g = (float)y / (maxAxis - 1);
+        float b = (float)z / (maxAxis - 1);
+        // Simple linear interpolation based on position; adjust as needed
+        return new Color(r, g, b, 1f);
     }
 
 
