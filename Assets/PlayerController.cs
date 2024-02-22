@@ -22,14 +22,17 @@ public class PlayerController : MonoBehaviour
 
     void Update() 
     {
-        if (Input.GetKey(KeyCode.UpArrow))
+        if (Input.GetKey(KeyCode.UpArrow) && (speed < 20))
         {
             speed += speedChangeStep;
         }
-        if (Input.GetKey(KeyCode.DownArrow))
+        if (Input.GetKey(KeyCode.DownArrow) && (speed > -20))
         {
             speed -= speedChangeStep;
         }
+
+        speed = Mathf.Clamp(speed, -20, 20);
+        
         if (Input.GetKey(KeyCode.A)) 
         {
             targetRotationY -= rotationSpeed;
