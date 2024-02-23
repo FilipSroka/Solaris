@@ -19,7 +19,7 @@ public class CubeController : MonoBehaviour
     private int cubesPerAxis = 60;
     private int subCubeSize = 1;
     private int limit = 15;
-    private int goldenCubes = 3;
+    private int goldenCubes = 10;
     private int score;
     public Text text;
 
@@ -108,6 +108,7 @@ public class CubeController : MonoBehaviour
             if (GetLiveNeighborCountNoDiagonal(x,y,z)!=6)
             {
                 subCubes[x, y, z].setMeshRenderer(true);
+                subCubes[x, y, z].myCollider.enabled = true;
             }
         }
         else 
